@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalkulator Modern</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --dark: #1e293b;
+      --light: #f1f5f9;
+      --white: #ffffff;
+      --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: var(--dark);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 30px;
+      align-items: start;
+    }
+
+    @media (max-width: 968px) {
+      .container {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+      }
+    }
+
+    .calculator-wrapper {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      padding: 30px;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+    }
+
+    .calculator-wrapper:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .app-title {
+      text-align: center;
+      margin-bottom: 20px;
+      color: var(--dark);
+      font-weight: 700;
+      font-size: 1.8rem;
+      letter-spacing: -0.5px;
+    }
+
+    .theme-switcher {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+
+    .theme-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .theme-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .theme-btn.active {
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+    }
+
+    .calculator {
+      background: var(--white);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .display-container {
+      background: var(--dark);
+      padding: 25px;
+      position: relative;
+    }
+
+    .history {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.5);
+      text-align: right;
+      min-height: 20px;
+      margin-bottom: 5px;
+    }
+
+    .display {
+      background: transparent;
+      color: var(--white);
+      font-size: 2.5rem;
+      text-align: right;
+      font-weight: 300;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .keys {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: #e0e7ff;
+    }
+
+    .btn {
+      padding: 22px 10px;
+      border: none;
+      background: var(--white);
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: var(--transition);
+      font-weight: 500;
+      color: var(--dark);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .btn:active::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .btn:hover {
+      background: var(--light);
+    }
+
+    .btn:active {
+      transform: scale(0.95);
+    }
+
+    .btn-clear {
+      background: var(--danger);
+      color: var(--white);
+      grid-column: span 2;
+    }
+
+    .btn-clear:hover {
+      background: #dc2626;
+    }
+
+    .btn-operator {
+      background: var(--secondary);
+      color: var(--white);
+    }
+
+    .btn-operator:hover {
+      background: #d97706;
+    }
+
+    .btn-equals {
+      background: var(--primary);
+      color: var(--white);
+      grid-column: span 2;
+    }
+
+    .btn-equals:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-zero {
+      grid-column: span 2;
+    }
+
+    .scientific-functions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: #e0e7ff;
+      margin-top: 1px;
+    }
+
+    .scientific-functions .btn {
+      background: #f8fafc;
+      font-size: 1rem;
+    }
+
+    .scientific-functions .btn:hover {
+      background: var(--light);
+    }
+
+    .report {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      padding: 30px;
+      box-shadow: var(--shadow);
+    }
+
+    .report h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: var(--dark);
+      font-size: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--dark);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: var(--transition);
+      background: var(--white);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 25px;
+    }
+
+    .btn-submit {
+      flex: 1;
+      padding: 12px 20px;
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-submit:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-reset {
+      padding: 12px 20px;
+      background: var(--light);
+      color: var(--dark);
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-reset:hover {
+      background: #e2e8f0;
+    }
+
+    .status-message {
+      margin-top: 15px;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .status-message.success {
+      background: #d1fae5;
+      color: #065f46;
+      display: block;
+    }
+
+    .status-message.error {
+      background: #fee2e2;
+      color: #991b1b;
+      display: block;
+    }
+
+    .toggle-scientific {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .toggle-btn {
+      background: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      padding: 8px 15px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+
+    .toggle-btn:hover {
+      background: var(--primary);
+      color: var(--white);
+    }
+
+    /* Dark theme */
+    body.dark-theme {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    }
+
+    body.dark-theme .calculator-wrapper,
+    body.dark-theme .report {
+      background: rgba(30, 41, 59, 0.95);
+      color: var(--light);
+    }
+
+    body.dark-theme .app-title,
+    body.dark-theme .report h2,
+    body.dark-theme .form-group label {
+      color: var(--light);
+    }
+
+    body.dark-theme .calculator {
+      background: #334155;
+    }
+
+    body.dark-theme .display-container {
+      background: #1e293b;
+    }
+
+    body.dark-theme .btn {
+      background: #475569;
+      color: var(--light);
+    }
+
+    body.dark-theme .btn:hover {
+      background: #64748b;
+    }
+
+    body.dark-theme .form-control {
+      background: #334155;
+      border-color: #475569;
+      color: var(--light);
+    }
+
+    body.dark-theme .scientific-functions .btn {
+      background: #475569;
+    }
+
+    body.dark-theme .toggle-btn {
+      border-color: var(--secondary);
+      color: var(--secondary);
+    }
+
+    body.dark-theme .toggle-btn:hover {
+      background: var(--secondary);
+      color: var(--white);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="calculator-wrapper">
+      <h1 class="app-title">Kalkulator Modern</h1>
+      
+      <div class="theme-switcher">
+        <button class="theme-btn active" style="background: #ffffff" data-theme="light"></button>
+        <button class="theme-btn" style="background: #1e293b" data-theme="dark"></button>
+        <button class="theme-btn" style="background: #fef3c7" data-theme="sepia"></button>
+      </div>
+
+      <div class="calculator">
+        <div class="display-container">
+          <div class="history" id="history"></div>
+          <div class="display" id="display">0</div>
+        </div>
+        
+        <div class="keys">
+          <button class="btn btn-clear" data-action="clear">AC</button>
+          <button class="btn" data-action="back">⌫</button>
+          <button class="btn btn-operator" data-value="%">%</button>
+          <button class="btn btn-operator" data-value="/">÷</button>
+          
+          <button class="btn" data-value="7">7</button>
+          <button class="btn" data-value="8">8</button>
+          <button class="btn" data-value="9">9</button>
+          <button class="btn btn-operator" data-value="*">×</button>
+          
+          <button class="btn" data-value="4">4</button>
+          <button class="btn" data-value="5">5</button>
+          <button class="btn" data-value="6">6</button>
+          <button class="btn btn-operator" data-value="-">−</button>
+          
+          <button class="btn" data-value="1">1</button>
+          <button class="btn" data-value="2">2</button>
+          <button class="btn" data-value="3">3</button>
+          <button class="btn btn-operator" data-value="+">+</button>
+          
+          <button class="btn btn-zero" data-value="0">0</button>
+          <button class="btn" data-value=".">.</button>
+          <button class="btn btn-equals" data-action="equals">=</button>
+        </div>
+        
+        <div class="scientific-functions" id="scientificFunctions" style="display: none;">
+          <button class="btn" data-action="sin" data-value="sin">sin</button>
+          <button class="btn" data-action="cos" data-value="cos">cos</button>
+          <button class="btn" data-action="tan" data-value="tan">tan</button>
+          <button class="btn" data-action="log" data-value="log">log</button>
+          
+          <button class="btn" data-action="ln" data-value="ln">ln</button>
+          <button class="btn" data-action="sqrt" data-value="√">√</button>
+          <button class="btn" data-action="pow2" data-value="x²">x²</button>
+          <button class="btn" data-action="pow" data-value="x^y">x^y</button>
+          
+          <button class="btn" data-action="pi" data-value="π">π</button>
+          <button class="btn" data-action="e" data-value="e">e</button>
+          <button class="btn" data-action="factorial" data-value="n!">n!</button>
+          <button class="btn" data-action="reciprocal" data-value="1/x">1/x</button>
+        </div>
+        
+        <div class="toggle-scientific">
+          <button class="toggle-btn" id="toggleScientific">Fungsi Ilmiah</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="report">
+      <h2>Laporkan masalah / saran</h2>
+      <form id="reportForm">
+        <div class="form-group">
+          <label for="name">Nama (opsional)</label>
+          <input type="text" id="name" name="name" class="form-control" placeholder="Nama Anda">
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Email (opsional)</label>
+          <input type="email" id="email" name="email" class="form-control" placeholder="email@contoh.com">
+        </div>
+        
+        <div class="form-group">
+          <label for="type">Jenis Laporan</label>
+          <select id="type" name="type" class="form-control" required>
+            <option value="bug">Bug</option>
+            <option value="ux">Usability / UI</option>
+            <option value="suggestion">Saran</option>
+            <option value="other">Lainnya</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="message">Deskripsi</label>
+          <textarea id="message" name="message" rows="4" class="form-control" required placeholder="Jelaskan masalah atau saran secara singkat dan jelas"></textarea>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="btn-submit">Kirim Laporan</button>
+          <button type="reset" class="btn-reset">Reset</button>
+        </div>
+        
+        <div id="reportStatus" class="status-message"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const display = document.getElementById('display');
+      const history = document.getElementById('history');
+      const scientificFunctions = document.getElementById('scientificFunctions');
+      const toggleScientific = document.getElementById('toggleScientific');
+      const reportForm = document.getElementById('reportForm');
+      const reportStatus = document.getElementById('reportStatus');
+      const themeButtons = document.querySelectorAll('.theme-btn');
+      
+      let scientificVisible = false;
+      
+      // Calculator class
+      class Calculator {
+        constructor(displayElement, historyElement) {
+          this.displayElement = displayElement;
+          this.historyElement = historyElement;
+          this.clear();
+        }
+        
+        clear() {
+          this.current = '0';
+          this.previous = null;
+          this.operator = null;
+          this.updateDisplay();
+          this.updateHistory('');
+        }
+        
+        backspace() {
+          if (this.current.length <= 1) {
+            this.current = '0';
+          } else {
+            this.current = this.current.slice(0, -1);
+          }
+          this.updateDisplay();
+        }
+        
+        appendNumber(num) {
+          if (num === '.' && this.current.includes('.')) return;
+          if (this.current === '0' && num !== '.') {
+            this.current = num;
+          } else {
+            this.current = this.current + num;
+          }
+          this.updateDisplay();
+        }
+        
+        chooseOperator(op) {
+          if (op === '%') {
+            this.current = (parseFloat(this.current) / 100).toString();
+            this.updateDisplay();
+            return;
+          }
+          
+          if (this.operator !== null) {
+            this.compute();
+          }
+          this.operator = op;
+          this.previous = this.current;
+          this.updateHistory(`${this.previous} ${op}`);
+          this.current = '0';
+        }
+        
+        compute() {
+          if (this.operator === null || this.previous === null) return;
+          
+          const prev = parseFloat(this.previous);
+          const curr = parseFloat(this.current);
+          let result = 0;
+          
+          switch (this.operator) {
+            case '+': result = prev + curr; break;
+            case '-': result = prev - curr; break;
+            case '*': result = prev * curr; break;
+            case '/': result = curr === 0 ? NaN : prev / curr; break;
+            default: result = curr;
+          }
+          
+          this.updateHistory(`${this.previous} ${this.operator} ${this.current} =`);
+          this.current = Number.isFinite(result) ? parseFloat(result.toFixed(10)).toString() : 'Error';
+          this.operator = null;
+          this.previous = null;
+          this.updateDisplay();
+        }
+        
+        // Scientific functions
+        sin() {
+          this.current = Math.sin(parseFloat(this.current)).toString();
+          this.updateDisplay();
+        }
+        
+        cos() {
+          this.current = Math.cos(parseFloat(this.current)).toString();
+          this.updateDisplay();
+        }
+        
+        tan() {
+          this.current = Math.tan(parseFloat(this.current)).toString();
+          this.updateDisplay();
+        }
+        
+        log() {
+          this.current = Math.log10(parseFloat(this.current)).toString();
+          this.updateDisplay();
+        }
+        
+        ln() {
+          this.current = Math.log(parseFloat(this.current)).toString();
+          this.updateDisplay();
+        }
+        
+        sqrt() {
+          this.current = Math.sqrt(parseFloat(this.current)).toString();
+          this.updateDisplay();
+        }
+        
+        pow2() {
+          this.current = Math.pow(parseFloat(this.current), 2).toString();
+          this.updateDisplay();
+        }
+        
+        pi() {
+          this.current = Math.PI.toString();
+          this.updateDisplay();
+        }
+        
+        e() {
+          this.current = Math.E.toString();
+          this.updateDisplay();
+        }
+        
+        factorial() {
+          const n = parseInt(this.current);
+          if (n < 0) {
+            this.current = 'Error';
+          } else if (n === 0 || n === 1) {
+            this.current = '1';
+          } else {
+            let result = 1;
+            for (let i = 2; i <= n; i++) {
+              result *= i;
+            }
+            this.current = result.toString();
+          }
+          this.updateDisplay();
+        }
+        
+        reciprocal() {
+          this.current = (1 / parseFloat(this.current)).toString();
+          this.updateDisplay();
+        }
+        
+        updateDisplay() {
+          this.displayElement.textContent = this.current;
+        }
+        
+        updateHistory(text) {
+          this.historyElement.textContent = text;
+        }
+      }
+      
+      const calc = new Calculator(display, history);
+      
+      // Button click handlers
+      document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const action = btn.dataset.action;
+          const value = btn.dataset.value;
+          
+          if (action === 'clear') {
+            calc.clear();
+            return;
+          }
+          
+          if (action === 'back') {
+            calc.backspace();
+            return;
+          }
+          
+          if (action === 'equals') {
+            calc.compute();
+            return;
+          }
+          
+          // Scientific functions
+          if (action === 'sin') {
+            calc.sin();
+            return;
+          }
+          
+          if (action === 'cos') {
+            calc.cos();
+            return;
+          }
+          
+          if (action === 'tan') {
+            calc.tan();
+            return;
+          }
+          
+          if (action === 'log') {
+            calc.log();
+            return;
+          }
+          
+          if (action === 'ln') {
+            calc.ln();
+            return;
+          }
+          
+          if (action === 'sqrt') {
+            calc.sqrt();
+            return;
+          }
+          
+          if (action === 'pow2') {
+            calc.pow2();
+            return;
+          }
+          
+          if (action === 'pi') {
+            calc.pi();
+            return;
+          }
+          
+          if (action === 'e') {
+            calc.e();
+            return;
+          }
+          
+          if (action === 'factorial') {
+            calc.factorial();
+            return;
+          }
+          
+          if (action === 'reciprocal') {
+            calc.reciprocal();
+            return;
+          }
+          
+          if (btn.classList.contains('btn-operator')) {
+            calc.chooseOperator(value);
+          } else {
+            calc.appendNumber(value);
+          }
+        });
+      });
+      
+      // Keyboard support
+      window.addEventListener('keydown', (e) => {
+        const k = e.key;
+        
+        if ((k >= '0' && k <= '9') || k === '.') {
+          calc.appendNumber(k);
+        } else if (k === 'Enter' || k === '=') {
+          e.preventDefault();
+          calc.compute();
+        } else if (k === 'Backspace') {
+          calc.backspace();
+        } else if (k === 'Escape') {
+          calc.clear();
+        } else if (['+', '-', '*', '/'].includes(k)) {
+          calc.chooseOperator(k);
+        } else if (k === '%') {
+          calc.chooseOperator('%');
+        }
+      });
+      
+      // Toggle scientific functions
+      toggleScientific.addEventListener('click', () => {
+        scientificVisible = !scientificVisible;
+        scientificFunctions.style.display = scientificVisible ? 'grid' : 'none';
+        toggleScientific.textContent = scientificVisible ? 'Sembunyikan Fungsi Ilmiah' : 'Fungsi Ilmiah';
+      });
+      
+      // Theme switcher
+      themeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const theme = btn.dataset.theme;
+          
+          // Remove active class from all buttons
+          themeButtons.forEach(b => b.classList.remove('active'));
+          
+          // Add active class to clicked button
+          btn.classList.add('active');
+          
+          // Apply theme
+          if (theme === 'dark') {
+            document.body.classList.add('dark-theme');
+          } else {
+            document.body.classList.remove('dark-theme');
+          }
+          
+          // Save theme preference
+          localStorage.setItem('calculatorTheme', theme);
+        });
+      });
+      
+      // Load saved theme
+      const savedTheme = localStorage.getItem('calculatorTheme');
+      if (savedTheme) {
+        document.querySelector(`[data-theme="${savedTheme}"]`).click();
+      }
+      
+      // Report form handling
+      reportForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        reportStatus.textContent = 'Mengirim laporan...';
+        reportStatus.className = 'status-message';
+        
+        const formData = new FormData(reportForm);
+        const payload = Object.fromEntries(formData.entries());
+        
+        // Validate
+        if (!payload.message || payload.message.trim().length < 5) {
+          reportStatus.textContent = 'Mohon isi deskripsi minimal 5 karakter.';
+          reportStatus.className = 'status-message error';
+          return;
+        }
+        
+        // Simulate sending
+        try {
+          await new Promise(res => setTimeout(res, 1000));
+          
+          reportStatus.textContent = 'Terima kasih — laporan telah diterima.';
+          reportStatus.className = 'status-message success';
+          reportForm.reset();
+        } catch (err) {
+          reportStatus.textContent = 'Gagal mengirim laporan. Silakan coba lagi.';
+          reportStatus.className = 'status-message error';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
